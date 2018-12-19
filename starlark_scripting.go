@@ -203,7 +203,6 @@ func LoadScript(filename string) (int, string) {
 			names = append(names, name)
 		}
 		sort.Strings(names)
-		fmt.Println("\nGlobals:")
 		for _, name := range names {
 			v := response[name]
 			if strings.Compare(name, "repeat") == 0 {

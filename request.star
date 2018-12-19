@@ -1,5 +1,8 @@
 load('json.star', 'json')
 
+#print available functions in the module json
+print(dir(json))
+
 def MakeRequest() :
   return {
     "method" : "GET",
