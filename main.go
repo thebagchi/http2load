@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 	"log"
 	"net"
 	"net/http"
@@ -27,6 +28,21 @@ var client = http.Client{
 			return net.Dial(network, addr)
 		},
 	},
+}
+
+func init() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	})
+
+	h2s := &http2.Server{
+		// ...
+	}
+	h1s := &http.Server{
+		Addr:    ":8080",
+		Handler: h2c.NewHandler(handler, h2s),
+	}
+	go h1s.ListenAndServe()
 }
 
 func main() {
@@ -54,14 +70,18 @@ func main() {
 					request := request
 					pool.Enqueue(func() {
 						req, err := http.NewRequest(request.Method, request.Path, strings.NewReader(request.Body))
-						if nil != err {
+						if nil == err {
 							res, err := client.Do(req)
-							defer res.Body.Close()
+							if nil != res {
+								defer res.Body.Close()
+							}
 							if nil == err {
-
+								fmt.Println(res.StatusCode)
 							} else {
 								fmt.Println("Error: ", err)
 							}
+						} else {
+							fmt.Println("Error: ", err)
 						}
 					})
 				}

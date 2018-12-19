@@ -2,7 +2,7 @@ load('json.star', 'json')
 
 def MakeRequest() :
   return {
-    "method" : "GET"
+    "method" : "GET",
     "path" : "http://localhost:8080/api/v1/from/function",
     "headers" : {
       "Content-Type" : [
@@ -14,7 +14,7 @@ def MakeRequest() :
 repeat = 1
 requests = json.ToJson([
   {
-    "method" : "POST"
+    "method" : "POST",
     "path" : "http://localhost:8080/api/v1/object",
     "headers" : {
       "Content-Type" : [
@@ -26,7 +26,7 @@ requests = json.ToJson([
     })
   },
   {
-    "method" : "POST"
+    "method" : "POST",
     "path" : "http://localhost:8080/api/v1/array",
     "headers" : {
       "Content-Type" : [
