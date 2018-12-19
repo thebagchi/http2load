@@ -1,18 +1,32 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"flag"
 	"fmt"
+	"golang.org/x/net/http2"
 	"log"
+	"net"
+	"net/http"
 	"strings"
 )
 
 type HTTPRequest struct {
+	Method  string              `json:"method"`
 	Path    string              `json:"path"`
 	Queries map[string][]string `json:"queries"`
 	Body    string              `json:"body"`
 	Headers map[string][]string `json:"headers"`
+}
+
+var client = http.Client{
+	Transport: &http2.Transport{
+		AllowHTTP: true,
+		DialTLS: func(network, addr string, cfg *tls.Config) (conn net.Conn, e error) {
+			return net.Dial(network, addr)
+		},
+	},
 }
 
 func main() {
@@ -39,7 +53,16 @@ func main() {
 				for _, request := range values {
 					request := request
 					pool.Enqueue(func() {
-						fmt.Println(request)
+						req, err := http.NewRequest(request.Method, request.Path, strings.NewReader(request.Body))
+						if nil != err {
+							res, err := client.Do(req)
+							defer res.Body.Close()
+							if nil == err {
+
+							} else {
+								fmt.Println("Error: ", err)
+							}
+						}
 					})
 				}
 			}
