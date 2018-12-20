@@ -11,9 +11,11 @@ def MakeRequest() :
       "Content-Type" : [
         "application/json"
       ]
-    }
+    },
+    "expect" : 200
   }
 
+# Global Script Variables
 repeat = 1
 requests = json.ToJson([
   {

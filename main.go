@@ -18,6 +18,7 @@ type HTTPRequest struct {
 	Queries map[string][]string `json:"queries"`
 	Body    string              `json:"body"`
 	Headers map[string][]string `json:"headers"`
+	Expect  int                 `json:"expect"`
 }
 
 var client = http.Client{
@@ -75,6 +76,15 @@ func main() {
 								defer res.Body.Close()
 							}
 							if nil == err {
+								if request.Expect != 0 {
+									if request.Expect != res.StatusCode {
+										fmt.Println(fmt.Sprintf(
+											"Request didnot complete with expected status code %d received %d",
+											request.Expect,
+											res.StatusCode,
+										))
+									}
+								}
 								fmt.Println(res.StatusCode)
 							} else {
 								fmt.Println("Error: ", err)
