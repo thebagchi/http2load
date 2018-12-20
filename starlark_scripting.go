@@ -13,6 +13,7 @@ import (
 
 const (
 	JsonModule = "json.star"
+	CsvModule  = "csv.star"
 )
 
 func LoadJson() *starlarkstruct.Struct {
@@ -21,6 +22,16 @@ func LoadJson() *starlarkstruct.Struct {
 		starlark.StringDict{
 			"ToJson":   starlark.NewBuiltin("json", ToJson),
 			"FromJson": starlark.NewBuiltin("object", FromJson),
+		},
+	)
+}
+
+func LoadCSV() *starlarkstruct.Struct {
+	return starlarkstruct.FromStringDict(
+		starlarkstruct.Default,
+		starlark.StringDict{
+			"ToCSV":   starlark.NewBuiltin("csv", ToCSV),
+			"FromCSV": starlark.NewBuiltin("object", FromCSV),
 		},
 	)
 }
@@ -147,6 +158,15 @@ func Marshal(v interface{}) (starlark.Value, error) {
 	}
 }
 
+func ToCSV(
+	thread *starlark.Thread,
+	builtin *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+	return starlark.None, nil
+}
+
 func ToJson(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
@@ -166,6 +186,15 @@ func ToJson(
 		return starlark.None, err
 	}
 	return starlark.String(bytes), nil
+}
+
+func FromCSV(
+	thread *starlark.Thread,
+	builtin *starlark.Builtin,
+	args starlark.Tuple,
+	kwargs []starlark.Tuple,
+) (starlark.Value, error) {
+	return starlark.None, nil
 }
 
 func FromJson(
@@ -224,6 +253,10 @@ func loader(thread *starlark.Thread, module string) (starlark.StringDict, error)
 	case JsonModule:
 		return starlark.StringDict{
 			"json": LoadJson(),
+		}, nil
+	case CsvModule:
+		return starlark.StringDict{
+			"csv": LoadCSV(),
 		}, nil
 	}
 	return nil, fmt.Errorf("invalid module")
