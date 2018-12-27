@@ -1,6 +1,8 @@
 package main
 
 import (
+	"bytes"
+	"encoding/csv"
 	"encoding/json"
 	"fmt"
 	"go.starlark.net/starlark"
@@ -8,7 +10,6 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"vitess.io/vitess/go/json2"
 )
 
 const (
@@ -158,13 +159,49 @@ func Marshal(v interface{}) (starlark.Value, error) {
 	}
 }
 
+func CsvString(v interface{}) string {
+	values := make([]string, 0)
+	switch x := v.(type) {
+	case nil:
+		values = append(values, "nil")
+	case int:
+		values = append(values, fmt.Sprintf("%d", x))
+	case float64:
+		values = append(values, strconv.FormatFloat(x, 'f', -1, 64))
+	case bool:
+		values = append(values, strconv.FormatBool(x))
+	case string:
+		values = append(values, x)
+	case []interface{}:
+		for _, value := range x {
+			values = append(values, CsvString(value))
+		}
+	case map[string]interface{}:
+		for key, value := range x {
+			values = append(values, key, CsvString(value))
+		}
+	}
+	buffer := &bytes.Buffer{}
+	writer := csv.NewWriter(buffer)
+	writer.Write(values)
+	return buffer.String()
+}
+
 func ToCSV(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
 	args starlark.Tuple,
 	kwargs []starlark.Tuple,
 ) (starlark.Value, error) {
-	return starlark.None, nil
+	var value starlark.Value
+	if err := starlark.UnpackArgs("csv", args, kwargs, "value", &value); err != nil {
+		return starlark.None, err
+	}
+	native, err := Unmarshal(value)
+	if nil != err {
+		return starlark.None, err
+	}
+	return starlark.String(CsvString(native)), nil
 }
 
 func ToJson(
@@ -209,7 +246,7 @@ func FromJson(
 		return starlark.None, err
 	}
 	var value interface{}
-	err = json2.Unmarshal([]byte(AsString(content)), &value)
+	err = json.Unmarshal([]byte(AsString(content)), &value)
 	if nil != err {
 		return starlark.None, err
 	}

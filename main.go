@@ -10,6 +10,7 @@ import (
 	"net"
 	"net/http"
 	"strings"
+	"time"
 )
 
 type HTTPRequest struct {
@@ -30,20 +31,22 @@ var client = http.Client{
 	},
 }
 
-//func init() {
-//	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-//		w.WriteHeader(200)
-//	})
-//
-//	h2s := &http2.Server{
-//		// ...
-//	}
-//	h1s := &http.Server{
-//		Addr:    ":8080",
-//		Handler: h2c.NewHandler(handler, h2s),
-//	}
-//	go h1s.ListenAndServe()
-//}
+/*
+func init() {
+	handler := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(200)
+	})
+
+	h2s := &http2.Server{
+		// ...
+	}
+	h1s := &http.Server{
+		Addr:    ":8080",
+		Handler: h2c.NewHandler(handler, h2s),
+	}
+	go h1s.ListenAndServe()
+}
+*/
 
 func main() {
 	var (
@@ -60,7 +63,9 @@ func main() {
 	}
 
 	repeat, requests := LoadScript(*script)
+
 	if repeat > 0 {
+		gauge := NewGauge()
 		var values []HTTPRequest
 		err := json.Unmarshal([]byte(requests), &values)
 		if nil == err {
@@ -69,6 +74,7 @@ func main() {
 				for _, request := range values {
 					request := request
 					pool.Enqueue(func() {
+						start := time.Now()
 						req, err := http.NewRequest(request.Method, request.Path, strings.NewReader(request.Body))
 						if nil == err {
 							res, err := client.Do(req)
@@ -92,10 +98,19 @@ func main() {
 						} else {
 							fmt.Println("Error: ", err)
 						}
+						diff := time.Now().Sub(start).Nanoseconds() / (1000 * 1000)
+						gauge.Add(float64(diff))
 					})
 				}
 			}
 			pool.Await()
+			fmt.Println(fmt.Sprintf(
+				"Min: %v(ms) Max: %v(ms) Mean: %v(ms) Total: %v",
+				gauge.Min,
+				gauge.Max,
+				gauge.Mean(),
+				gauge.Count,
+			))
 		}
 	}
 }
