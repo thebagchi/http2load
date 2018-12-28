@@ -91,15 +91,14 @@ func main() {
 										))
 									}
 								}
-								fmt.Println(res.StatusCode)
 							} else {
 								fmt.Println("Error: ", err)
 							}
 						} else {
 							fmt.Println("Error: ", err)
 						}
-						diff := time.Now().Sub(start).Nanoseconds() / (1000 * 1000)
-						gauge.Add(float64(diff))
+						diff := float64(time.Now().Sub(start).Nanoseconds()) / float64(1000*1000)
+						gauge.Add(diff)
 					})
 				}
 			}
