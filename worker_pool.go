@@ -7,6 +7,7 @@ import (
 	"time"
 )
 
+// Worker Pool Stucture
 type WorkerPool struct {
 	Count  int
 	Queue  chan func()
@@ -16,6 +17,8 @@ type WorkerPool struct {
 var instance *WorkerPool
 var once sync.Once
 
+// NewWorkerPool - creates a new worker pool 
+// count - number of workers in the pool.
 func NewWorkerPool(count int) *WorkerPool {
 	once.Do(func() {
 		instance = &WorkerPool{
@@ -58,6 +61,8 @@ func (pool *WorkerPool) start() {
 	}
 }
 
+// Enqueue task to worker pool
+// Any function can be enqueued
 func (pool *WorkerPool) Enqueue(function func()) {
 	if function == nil {
 		fmt.Println("Error: cannot enqueue 'nil' function for execution")

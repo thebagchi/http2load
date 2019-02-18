@@ -14,12 +14,14 @@ type Gauge struct {
 	Max   float64
 }
 
+// NewGauge Creates a new gauge.
 func NewGauge() *Gauge {
 	gauge := &Gauge{}
 	gauge.Reset()
 	return gauge
 }
 
+// Reset Resets the gauge with inital values.
 func (gauge *Gauge) Reset() {
 	gauge.sum, gauge.Count, gauge.Min, gauge.Max = 0, 0, math.MaxFloat64, 0
 }
