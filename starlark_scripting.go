@@ -5,28 +5,32 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"go.starlark.net/starlark"
-	"go.starlark.net/starlarkstruct"
 	"sort"
 	"strconv"
 	"strings"
+
+	"go.starlark.net/starlark"
+	"go.starlark.net/starlarkstruct"
 )
 
+// Module Names
 const (
-	JsonModule = "json.star"
-	CsvModule  = "csv.star"
+	JSONModule = "json.star"
+	CSVModule  = "csv.star"
 )
 
-func LoadJson() *starlarkstruct.Struct {
+// LoadJSON loads json module in starlark script
+func LoadJSON() *starlarkstruct.Struct {
 	return starlarkstruct.FromStringDict(
 		starlarkstruct.Default,
 		starlark.StringDict{
-			"ToJson":   starlark.NewBuiltin("json", ToJson),
-			"FromJson": starlark.NewBuiltin("object", FromJson),
+			"ToJSON":   starlark.NewBuiltin("json", ToJSON),
+			"FromJSON": starlark.NewBuiltin("object", FromJSON),
 		},
 	)
 }
 
+// LoadCSV loads csv module in starlark script
 func LoadCSV() *starlarkstruct.Struct {
 	return starlarkstruct.FromStringDict(
 		starlarkstruct.Default,
@@ -37,6 +41,7 @@ func LoadCSV() *starlarkstruct.Struct {
 	)
 }
 
+// AsString starlark value to string
 func AsString(input starlark.Value) string {
 	value, err := strconv.Unquote(input.String())
 	if nil != err {
@@ -45,6 +50,7 @@ func AsString(input starlark.Value) string {
 	return value
 }
 
+// Unmarshal starlark value to interface
 func Unmarshal(v starlark.Value) (interface{}, error) {
 	switch v.Type() {
 	case "NoneType":
@@ -120,6 +126,7 @@ func Unmarshal(v starlark.Value) (interface{}, error) {
 	}
 }
 
+// Marshal interface to starlark value
 func Marshal(v interface{}) (starlark.Value, error) {
 	switch x := v.(type) {
 	case nil:
@@ -159,7 +166,8 @@ func Marshal(v interface{}) (starlark.Value, error) {
 	}
 }
 
-func CsvString(v interface{}) string {
+// CSVString creates csv string from interface
+func CSVString(v interface{}) string {
 	values := make([]string, 0)
 	switch x := v.(type) {
 	case nil:
@@ -174,11 +182,11 @@ func CsvString(v interface{}) string {
 		values = append(values, x)
 	case []interface{}:
 		for _, value := range x {
-			values = append(values, CsvString(value))
+			values = append(values, CSVString(value))
 		}
 	case map[string]interface{}:
 		for key, value := range x {
-			values = append(values, key, CsvString(value))
+			values = append(values, key, CSVString(value))
 		}
 	}
 	buffer := &bytes.Buffer{}
@@ -187,6 +195,7 @@ func CsvString(v interface{}) string {
 	return buffer.String()
 }
 
+// ToCSV creates csv string from starlark value
 func ToCSV(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
@@ -201,10 +210,11 @@ func ToCSV(
 	if nil != err {
 		return starlark.None, err
 	}
-	return starlark.String(CsvString(native)), nil
+	return starlark.String(CSVString(native)), nil
 }
 
-func ToJson(
+// ToJSON creates json string from starlark value
+func ToJSON(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
 	args starlark.Tuple,
@@ -225,6 +235,7 @@ func ToJson(
 	return starlark.String(bytes), nil
 }
 
+// FromCSV creates starlark value from csv string
 func FromCSV(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
@@ -234,7 +245,8 @@ func FromCSV(
 	return starlark.None, nil
 }
 
-func FromJson(
+// FromJSON creates starlark value from json string
+func FromJSON(
 	thread *starlark.Thread,
 	builtin *starlark.Builtin,
 	args starlark.Tuple,
@@ -253,6 +265,7 @@ func FromJson(
 	return Marshal(value)
 }
 
+// LoadScript loads a starlark script from file
 func LoadScript(filename string) (int, string) {
 	repeat := 0
 	requests := ""
@@ -287,11 +300,11 @@ func LoadScript(filename string) (int, string) {
 
 func loader(thread *starlark.Thread, module string) (starlark.StringDict, error) {
 	switch module {
-	case JsonModule:
+	case JSONModule:
 		return starlark.StringDict{
-			"json": LoadJson(),
+			"json": LoadJSON(),
 		}, nil
-	case CsvModule:
+	case CSVModule:
 		return starlark.StringDict{
 			"csv": LoadCSV(),
 		}, nil

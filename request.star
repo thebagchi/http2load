@@ -17,7 +17,7 @@ def MakeRequest() :
 
 # Global Script Variables
 repeat = 1000
-requests = json.ToJson([
+requests = json.ToJSON([
   {
     "method" : "POST",
     "path" : "http://localhost:8080/api/v1/object",
@@ -26,7 +26,7 @@ requests = json.ToJson([
         "application/json"
       ]
     },
-    "body" : json.ToJson({
+    "body" : json.ToJSON({
       "key" : "value"
     })
   },
@@ -38,7 +38,7 @@ requests = json.ToJson([
         "application/json"
       ]
     },
-    "body" : json.ToJson([
+    "body" : json.ToJSON([
       "item1",
       "item2"
     ])
