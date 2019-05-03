@@ -171,15 +171,15 @@ func CSVString(v interface{}) string {
 	values := make([]string, 0)
 	switch x := v.(type) {
 	case nil:
-		values = append(values, "nil")
+		return "nil"
 	case int:
-		values = append(values, fmt.Sprintf("%d", x))
+		return strconv.FormatInt(int64(x), 10)
 	case float64:
-		values = append(values, strconv.FormatFloat(x, 'f', -1, 64))
+		return strconv.FormatFloat(x, 'f', -1, 64)
 	case bool:
-		values = append(values, strconv.FormatBool(x))
+		return strconv.FormatBool(x)
 	case string:
-		values = append(values, x)
+		return x
 	case []interface{}:
 		for _, value := range x {
 			values = append(values, CSVString(value))
@@ -188,11 +188,14 @@ func CSVString(v interface{}) string {
 		for key, value := range x {
 			values = append(values, key, CSVString(value))
 		}
+	default:
+		return ""
 	}
 	buffer := &bytes.Buffer{}
 	writer := csv.NewWriter(buffer)
-	writer.Write(values)
-	return buffer.String()
+	_ = writer.Write(values)
+	writer.Flush()
+	return strings.TrimSpace(buffer.String())
 }
 
 // ToCSV creates csv string from starlark value
