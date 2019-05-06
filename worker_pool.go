@@ -17,7 +17,7 @@ type WorkerPool struct {
 var instance *WorkerPool
 var once sync.Once
 
-// NewWorkerPool - creates a new worker pool 
+// NewWorkerPool - creates a new worker pool
 // count - number of workers in the pool.
 func NewWorkerPool(count int) *WorkerPool {
 	once.Do(func() {
@@ -47,10 +47,11 @@ func (pool *WorkerPool) worker() {
 			if !ok {
 				return
 			}
+			pool.Waiter.Add(1)
 			pool.exec(function)
 			pool.Waiter.Done()
-		default:
-			time.Sleep(time.Millisecond * 1)
+		case <-time.After(100 * time.Millisecond):
+			//Do Nothing
 		}
 	}
 }
@@ -67,8 +68,12 @@ func (pool *WorkerPool) Enqueue(function func()) {
 	if function == nil {
 		fmt.Println("Error: cannot enqueue 'nil' function for execution")
 	}
-	pool.Waiter.Add(1)
-	pool.Queue <- function
+	select {
+	case pool.Queue <- function:
+		//Our function is enqueued
+	case <-time.After(1 * time.Millisecond):
+		//Our function is not enqueued
+	}
 }
 
 func (pool *WorkerPool) Await() {
