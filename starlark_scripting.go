@@ -231,11 +231,11 @@ func ToJSON(
 	if nil != err {
 		return starlark.None, err
 	}
-	bytes, err := json.Marshal(native)
+	data, err := json.Marshal(native)
 	if nil != err {
 		return starlark.None, err
 	}
-	return starlark.String(bytes), nil
+	return starlark.String(data), nil
 }
 
 // FromCSV creates starlark value from csv string

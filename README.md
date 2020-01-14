@@ -1,5 +1,5 @@
-# http2load
-http2 load generator
+# HTTP2 Load Tester
+HTTP2 Load Tester tool.
 
 
 ## TODO

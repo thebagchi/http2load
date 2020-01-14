@@ -1,8 +1,2 @@
-
-.idea/encodings.xml
-.idea/google-java-format.xml
-.idea/misc.xml
-.idea/modules.xml
-.idea/vcs.xml
-.idea/workspace.xml
-http2load.iml
+.idea
+*.iml
