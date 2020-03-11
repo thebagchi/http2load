@@ -16,7 +16,7 @@ def MakeRequest() :
   }
 
 # Global Script Variables
-repeat = 1000
+repeat = 1
 requests = json.ToJSON([
   {
     "method" : "POST",

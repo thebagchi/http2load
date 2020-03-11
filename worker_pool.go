@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-// Worker Pool Stucture
+// Worker Pool Structure
 type WorkerPool struct {
 	Count  int
 	Queue  chan func()
@@ -47,11 +47,10 @@ func (pool *WorkerPool) worker() {
 			if !ok {
 				return
 			}
-			pool.Waiter.Add(1)
 			pool.exec(function)
 			pool.Waiter.Done()
 		case <-time.After(100 * time.Millisecond):
-			//Do Nothing
+			// Do Nothing
 		}
 	}
 }
@@ -68,11 +67,12 @@ func (pool *WorkerPool) Enqueue(function func()) {
 	if function == nil {
 		fmt.Println("Error: cannot enqueue 'nil' function for execution")
 	}
+	pool.Waiter.Add(1)
 	select {
 	case pool.Queue <- function:
-		//Our function is enqueued
+		// Our function is enqueued
 	case <-time.After(1 * time.Millisecond):
-		//Our function is not enqueued
+		// Our function is not enqueued
 	}
 }
 

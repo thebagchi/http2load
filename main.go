@@ -69,7 +69,7 @@ func main() {
 		var values []HTTPRequest
 		err := json.Unmarshal([]byte(requests), &values)
 		if nil == err {
-			pool := NewWorkerPool(8)
+			pool := NewWorkerPool(1)
 			for count := 0; count < repeat; count++ {
 				for _, request := range values {
 					request := request
