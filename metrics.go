@@ -10,9 +10,10 @@ type Gauge struct {
 	lock sync.Mutex
 	sum  float64
 
-	Count int
-	Min   float64
-	Max   float64
+	Count   int
+	Min     float64
+	Max     float64
+	Success int
 }
 
 // NewGauge Creates a new gauge.
@@ -24,7 +25,7 @@ func NewGauge() *Gauge {
 
 // Reset Resets the gauge with inital values.
 func (gauge *Gauge) Reset() {
-	gauge.sum, gauge.Count, gauge.Min, gauge.Max = 0, 0, math.MaxFloat64, 0
+	gauge.sum, gauge.Count, gauge.Min, gauge.Max, gauge.Success = 0, 0, math.MaxFloat64, 0, 0
 }
 
 // Mean get mean value from gauge.

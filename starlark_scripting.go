@@ -9,9 +9,18 @@ import (
 	"strconv"
 	"strings"
 
+	"go.starlark.net/resolve"
 	"go.starlark.net/starlark"
 	"go.starlark.net/starlarkstruct"
 )
+
+func init() {
+	resolve.AllowNestedDef = true
+	resolve.AllowLambda = true
+	resolve.AllowFloat = true
+	resolve.AllowGlobalReassign = true
+	resolve.AllowRecursion = true
+}
 
 // Module Names
 const (

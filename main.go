@@ -89,6 +89,8 @@ func main() {
 											request.Expect,
 											res.StatusCode,
 										))
+									} else {
+										gauge.Success++
 									}
 								}
 							} else {
@@ -104,11 +106,12 @@ func main() {
 			}
 			pool.Await()
 			fmt.Println(fmt.Sprintf(
-				"Min: %v(ms) Max: %v(ms) Mean: %v(ms) Total: %v",
+				"Min: %v(ms) Max: %v(ms) Mean: %v(ms) Total: %v Successful: %v",
 				gauge.Min,
 				gauge.Max,
 				gauge.Mean(),
 				gauge.Count,
+				gauge.Success,
 			))
 		}
 	}
