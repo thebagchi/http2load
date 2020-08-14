@@ -65,7 +65,7 @@ func (pool *WorkerPool) start() {
 // Enqueue task to worker pool
 // Any function can be enqueued
 func (pool *WorkerPool) Enqueue(function func()) {
-	ticker := time.NewTicker(100 * time.Millisecond)
+	ticker := time.NewTicker(1 * time.Millisecond)
 	if function == nil {
 		fmt.Println("Error: cannot enqueue 'nil' function for execution")
 	}
