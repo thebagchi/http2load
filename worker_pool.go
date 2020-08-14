@@ -41,6 +41,7 @@ func (pool *WorkerPool) exec(function func()) {
 }
 
 func (pool *WorkerPool) worker() {
+	ticker := time.NewTicker(100 * time.Millisecond)
 	for {
 		select {
 		case function, ok := <-pool.Queue:
@@ -49,7 +50,7 @@ func (pool *WorkerPool) worker() {
 			}
 			pool.exec(function)
 			pool.Waiter.Done()
-		case <-time.After(100 * time.Millisecond):
+		case <-ticker.C:
 			// Do Nothing
 		}
 	}
@@ -64,6 +65,7 @@ func (pool *WorkerPool) start() {
 // Enqueue task to worker pool
 // Any function can be enqueued
 func (pool *WorkerPool) Enqueue(function func()) {
+	ticker := time.NewTicker(100 * time.Millisecond)
 	if function == nil {
 		fmt.Println("Error: cannot enqueue 'nil' function for execution")
 	}
@@ -71,8 +73,9 @@ func (pool *WorkerPool) Enqueue(function func()) {
 	select {
 	case pool.Queue <- function:
 		// Our function is enqueued
-	case <-time.After(1 * time.Millisecond):
+	case <-ticker.C:
 		// Our function is not enqueued
+		pool.Waiter.Done()
 	}
 }
 
